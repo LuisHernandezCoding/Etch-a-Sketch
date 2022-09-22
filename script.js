@@ -47,9 +47,9 @@ function createGrid(){
         gridSlot.classList.add('gridSquare')
         gridSlot.addEventListener('pointerenter', (e) => squarePointerEnter(e))
         gridSlot.style.backgroundColor = 'rgb(255,255,255)'
-        setBorders(true)
         gridContainer.appendChild(gridSlot)
     }
+    setBorders(true)
 }
 // Deleting Grid
 function deleteGrid(){
