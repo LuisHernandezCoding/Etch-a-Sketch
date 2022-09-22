@@ -50,6 +50,17 @@ body {
     justify-content: center;
     gap: 10px;
 }
+.topPanel {
+    margin-bottom: 10px;
+    background: #021d348c;
+    padding: 15px;
+    display: flex;
+    justify-content: right;
+    gap: 15px;
+}
+.topPanel button {
+    width: 160px;
+}
 .leftPanel {
     width: 160px;
     background: #021d348c;
@@ -63,7 +74,10 @@ body {
     flex-direction: column;
     gap: 15px;
 }
-.leftPanel .buttons button {
+.leftPanel button{    
+    width: 100%;
+}
+button {
     background: #03386a;
     border-style: solid;
     border-radius: 9px;
@@ -73,13 +87,18 @@ body {
     font-family: inherit;
     font-size: 25px;
     letter-spacing: 2px;
-    width: 100%;
-    height: 37px;
+    height: 45px;
     transition: cubic-bezier(0.68, -0.55, 0.27, 1.55) all 0.3s;
 }
-.leftPanel .buttons button:hover {
+button:hover {
     background: #0000003d;
     font-size: 20px;
+}
+button.active {
+    background: #0000003d;
+    font-size: 20px;
+    color: #787878;
+    border-width: 1px;
 }
 .rightPanel {
     width: 500px;

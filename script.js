@@ -3,30 +3,35 @@ let drawingState = 'pen'
 let isDisplayingGrid = true
 let gridSize = 16
 let containerSize = 500
+let continuous = true
 
 
 // Set Constants
 const gridContainer = document.getElementById("grid")
+
 const penButton = document.getElementById("pen")
 const pencilButton = document.getElementById("pencil")
 const eraserButton = document.getElementById("eraser")
 const rainbowButton = document.getElementById("rainbow")
 const lightenButton = document.getElementById("lighten")
 const darkenButton = document.getElementById("darken")
+
 const clearButton = document.getElementById('clear')
 const setSizeButton = document.getElementById('setSize')
 const toggleBorderButton = document.getElementById('toggleBorder')
+const toggleContinuousButton = document.getElementById('continuous')
 
-penButton.addEventListener('click', () => setPen())
-pencilButton.addEventListener('click', () => setPencil())
-eraserButton.addEventListener('click', () => setEraser())
-rainbowButton.addEventListener('click', () => setRainbow())
-lightenButton.addEventListener('click', () => setLightening())
-darkenButton.addEventListener('click', () => setDarkening())
+penButton.addEventListener('click', () => setTool('pen'))
+pencilButton.addEventListener('click', () => setTool('pencil'))
+eraserButton.addEventListener('click', () => setTool('eraser'))
+rainbowButton.addEventListener('click', () => setTool('rainbow'))
+lightenButton.addEventListener('click', () => setTool('lighten'))
+darkenButton.addEventListener('click', () => setTool('darken'))
+
 clearButton.addEventListener('click', () => clearGrid())
 setSizeButton.addEventListener('click', () => setSize())
 toggleBorderButton.addEventListener('click', () => toggleBorder())
-
+toggleContinuousButton.addEventListener('click', () => toggleContinuous())
 
 
 clearGrid()
@@ -42,7 +47,7 @@ function createGrid(){
         gridSlot.classList.add('gridSquare')
         gridSlot.addEventListener('pointerenter', (e) => squarePointerEnter(e))
         gridSlot.style.backgroundColor = 'rgb(255,255,255)'
-
+        setBorders(true)
         gridContainer.appendChild(gridSlot)
     }
 }
@@ -62,75 +67,132 @@ function clearGrid(){
     createGrid()
 }
 
+function setBorders(bordersOn){
+    const gridSquares = document.getElementsByClassName('gridSquare')
+    for (let i = 0; i < gridSquares.length; i++) {
+        const element = gridSquares[i];
+        (bordersOn) ? element.classList.add('border') :  element.classList.remove('border') ;
+    }
+    (bordersOn) ? toggleBorderButton.classList.add('active') :  toggleBorderButton.classList.remove('active') ;
+}
 function toggleBorder(){
     const gridSquares = document.getElementsByClassName('gridSquare')
     for (let i = 0; i < gridSquares.length; i++) {
         const element = gridSquares[i];
         element.classList.toggle('border')
     }
+    toggleBorderButton.classList.toggle('active')    
+}
+function toggleContinuous(){
+    continuous = !continuous
+    toggleContinuousButton.classList.toggle('active')
 }
 
 // Paint in grid
-function squarePointerEnter(event) {   
-    let r, g, b, colorString, colorArray
-    let getColorArray = (s) => s.slice(4, -1).split(', ')
-    let getRGBString = (s) => 'rgb(' + s.join(', ') + ')';
-    switch (drawingState) {
+function squarePointerEnter(event) {  
+    if (continuous || !continuous && event.buttons === 1) 
+    {
+        console.log(event.buttons)
+        let r, g, b, colorString, colorArray
+        let getColorArray = (s) => s.slice(4, -1).split(', ')
+        let getRGBString = (s) => 'rgb(' + s.join(', ') + ')';
+        switch (drawingState) {
+            case 'pen':
+                event.target.style.backgroundColor = 'rgb(000,000,000)'
+                break;
+
+            case 'pencil':
+                event.target.style.backgroundColor = 'rgb(127.5,127.5,127.5)'
+                break;
+
+            case 'eraser':
+                event.target.style.backgroundColor = 'rgb(255,255,255)'
+                break;
+
+            case 'rainbow':
+                r = Math.floor(Math.random() * (254 - 1 + 1) + 1)
+                g = Math.floor(Math.random() * (254 - 1 + 1) + 1)
+                b  = Math.floor(Math.random() * (254 - 1 + 1) + 1)
+                colorString = 'rgb(' + r + ' ' + g + ' ' + b + ')'
+                event.target.style.backgroundColor = colorString
+                break;
+
+            case 'lighten':
+                colorArray = getColorArray(event.target.style.backgroundColor)
+                if(colorArray[0] >= 229.5) colorArray[0] = 255; else colorArray[0] = Number(colorArray[0]) + 25.5;
+                if(colorArray[1] >= 229.5) colorArray[1] = 255; else colorArray[1] = Number(colorArray[1]) + 25.5;
+                if(colorArray[2] >= 229.5) colorArray[2] = 255; else colorArray[2] = Number(colorArray[2]) + 25.5;
+                event.target.style.backgroundColor = getRGBString(colorArray)
+                break;
+
+            case 'darken':
+                colorArray = getColorArray(event.target.style.backgroundColor)
+                if(colorArray[0] <= 25.5) colorArray[0] = 0; else colorArray[0] = Number(colorArray[0]) - 25.5;
+                if(colorArray[1] <= 25.5) colorArray[1] = 0; else colorArray[1] = Number(colorArray[1]) - 25.5;
+                if(colorArray[2] <= 25.5) colorArray[2] = 0; else colorArray[2] = Number(colorArray[2]) - 25.5;
+                event.target.style.backgroundColor = getRGBString(colorArray)
+                break;
+        }
+    }
+}
+function setTool(tool) {
+    drawingState = tool
+    switch (tool) {
         case 'pen':
-            event.target.style.backgroundColor = 'rgb(000,000,000)'
+            penButton.classList.add('active')
+            pencilButton.classList.remove('active')
+            eraserButton.classList.remove('active')
+            rainbowButton.classList.remove('active')
+            lightenButton.classList.remove('active')
+            darkenButton.classList.remove('active')
             break;
 
         case 'pencil':
-            event.target.style.backgroundColor = 'rgb(127.5,127.5,127.5)'
+            penButton.classList.remove('active')
+            pencilButton.classList.add('active')
+            eraserButton.classList.remove('active')
+            rainbowButton.classList.remove('active')
+            lightenButton.classList.remove('active')
+            darkenButton.classList.remove('active')
             break;
 
         case 'eraser':
-            event.target.style.backgroundColor = 'rgb(255,255,255)'
+            penButton.classList.remove('active')
+            pencilButton.classList.remove('active')
+            eraserButton.classList.add('active')
+            rainbowButton.classList.remove('active')
+            lightenButton.classList.remove('active')
+            darkenButton.classList.remove('active')
             break;
 
         case 'rainbow':
-            r = Math.floor(Math.random() * (254 - 1 + 1) + 1)
-            g = Math.floor(Math.random() * (254 - 1 + 1) + 1)
-            b  = Math.floor(Math.random() * (254 - 1 + 1) + 1)
-            colorString = 'rgb(' + r + ' ' + g + ' ' + b + ')'
-            event.target.style.backgroundColor = colorString
+            penButton.classList.remove('active')
+            pencilButton.classList.remove('active')
+            eraserButton.classList.remove('active')
+            rainbowButton.classList.add('active')
+            lightenButton.classList.remove('active')
+            darkenButton.classList.remove('active')
             break;
 
-        case 'lightening':
-            colorArray = getColorArray(event.target.style.backgroundColor)
-            if(colorArray[0] >= 229.5) colorArray[0] = 255; else colorArray[0] = Number(colorArray[0]) + 25.5;
-            if(colorArray[1] >= 229.5) colorArray[1] = 255; else colorArray[1] = Number(colorArray[1]) + 25.5;
-            if(colorArray[2] >= 229.5) colorArray[2] = 255; else colorArray[2] = Number(colorArray[2]) + 25.5;
-            event.target.style.backgroundColor = getRGBString(colorArray)
+        case 'lighten':
+            penButton.classList.remove('active')
+            pencilButton.classList.remove('active')
+            eraserButton.classList.remove('active')
+            rainbowButton.classList.remove('active')
+            lightenButton.classList.add('active')
+            darkenButton.classList.remove('active')
             break;
 
-        case 'darkening':
-            colorArray = getColorArray(event.target.style.backgroundColor)
-            if(colorArray[0] <= 25.5) colorArray[0] = 0; else colorArray[0] = Number(colorArray[0]) - 25.5;
-            if(colorArray[1] <= 25.5) colorArray[1] = 0; else colorArray[1] = Number(colorArray[1]) - 25.5;
-            if(colorArray[2] <= 25.5) colorArray[2] = 0; else colorArray[2] = Number(colorArray[2]) - 25.5;
-            event.target.style.backgroundColor = getRGBString(colorArray)
+        case 'darken':
+            penButton.classList.remove('active')
+            pencilButton.classList.remove('active')
+            eraserButton.classList.remove('active')
+            lightenButton.classList.remove('active')
+            darkenButton.classList.add('active')
             break;
     }
 }
-function setPen() {
-    drawingState = 'pen'
-}
-function setPencil() {
-    drawingState = 'pencil'
-}
-function setEraser() {
-    drawingState = 'eraser'
-}
-function setRainbow() {
-    drawingState = 'rainbow'
-}
-function setLightening() {
-    drawingState = 'lightening'
-}
-function setDarkening() {
-    drawingState = 'darkening'
-}
+
 function setSize() {
     gridSize = prompt('Set the size of the grid between 1 and 64', 16)
     if (gridSize < 1)  gridSize = 1
