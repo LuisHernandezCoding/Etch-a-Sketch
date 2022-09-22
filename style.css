@@ -108,6 +108,12 @@ button.active {
     width: 500px;
     height: 500px;
 }
+.gridSquare {
+    -webkit-user-select: none; /* Safari */
+    -ms-user-select: none; /* IE 10 and IE 11 */
+    user-select: none;
+    outline: 0;
+}
 .footer {
     background: black;
     width: 100%;
